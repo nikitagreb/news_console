@@ -4,7 +4,7 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Laravel\Lumen\Console\Kernel as ConsoleKernel;
-use App\Console\Commands\{ParseSaveToFilerCommand, TestCommand, TestParserCommand};
+use App\Console\Commands\{ParseSaveToFilerCommand, TestParserCommand};
 
 class Kernel extends ConsoleKernel
 {
@@ -14,7 +14,6 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        TestCommand::class,
         TestParserCommand::class,
         ParseSaveToFilerCommand::class,
     ];

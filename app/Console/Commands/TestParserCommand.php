@@ -3,8 +3,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use PHPHtmlParser\Dom;
+use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, NotLoadedException, StrictException};
+use Illuminate\Console\Command;
 
 /**
  * Class TestCommand
@@ -57,6 +58,15 @@ class TestParserCommand extends Command
      * Execute the console command.
      *
      * @return mixed
+     */
+
+    /**
+     * Execute the console command.
+     *
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws NotLoadedException
+     * @throws StrictException
      */
     public function handle()
     {

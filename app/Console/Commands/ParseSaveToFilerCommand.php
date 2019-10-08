@@ -3,8 +3,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use PHPHtmlParser\Dom;
+use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, CurlException, StrictException};
+use Illuminate\Console\Command;
 
 /**
  * Class TestCommand
@@ -27,16 +28,16 @@ class ParseSaveToFilerCommand extends Command
     protected $description = "Parser save to file";
 
     /**
-     * @throws \PHPHtmlParser\Exceptions\ChildNotFoundException
-     * @throws \PHPHtmlParser\Exceptions\CircularException
-     * @throws \PHPHtmlParser\Exceptions\CurlException
-     * @throws \PHPHtmlParser\Exceptions\StrictException
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws CurlException
+     * @throws StrictException
      */
     public function handle()
     {
-        $categoryUrl = 'https://www.bbc.com/news/technology';
-        $categoryUrl = 'https://www.nytimes.com/section/business';
-        $categoryUrl = 'https://abcnews.go.com/Business';
+//        $categoryUrl = 'https://www.bbc.com/news/technology';
+//        $categoryUrl = 'https://www.nytimes.com/section/business';
+//        $categoryUrl = 'https://abcnews.go.com/Business';
         $categoryUrl = 'https://edition.cnn.com/business';
 
         $fileName = implode(DIRECTORY_SEPARATOR, [
