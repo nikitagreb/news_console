@@ -70,7 +70,7 @@ class TestParserCommand extends Command
      */
     public function handle()
     {
-        $i = 3;
+        $i = 2;
         $categoryUrl = $this->dataCategory[$i]['url'];
         $linkSelector = $this->dataCategory[$i]['linkSelector'];
         $linkSelector = str_replace('{date}', (new \DateTime())->format('Y/m/d'), $linkSelector);
@@ -86,7 +86,6 @@ class TestParserCommand extends Command
         $dom->loadFromFile($fileName);
 
         $contents = $dom->find($linkSelector);
-        echo count($contents); // 10
 
         foreach ($contents as $content)
         {

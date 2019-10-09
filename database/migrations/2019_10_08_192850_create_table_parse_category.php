@@ -20,9 +20,9 @@ class CreateTableParseCategory extends Migration
             $table->collation = 'utf8_unicode_ci';
             $table->unsignedInteger('category_id')->comment('Категория');
             $table->unsignedInteger('source_id')->comment('Источник');
-            $table->string('name', 100)->comment('Название');
             $table->string('link', 250)->comment('Ссылка на страницу категории');
             $table->string('linkSelector', 250)->comment('Css селектор для ссылки');
+            $table->enum('status', ['new', 'loaded'])->default('new')->comment('Статус');
             $table->timestamps();
 
             $table->primary(['category_id', 'source_id']);
