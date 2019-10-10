@@ -3,10 +3,10 @@
 
 namespace App\Console\Commands;
 
-use App\Entity\ParseCategory;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, NotLoadedException, StrictException};
 use Illuminate\Console\Command;
+use App\Entity\ParseCategory;
 
 
 /**
@@ -72,13 +72,13 @@ class TestParserCommand extends Command
      */
     public function handle()
     {
-        $test = ParseCategory::first();
-        var_dump($test->source_id);
-        var_dump($test->source->id);
-        var_dump($test->category_id);
-        var_dump($test->category->id);
+//        $test = ParseCategory::first();
+//        var_dump($test->source_id);
+//        var_dump($test->source->id);
+//        var_dump($test->category_id);
+//        var_dump($test->category->id);
 //        var_dump(get_class($test->source));
-        return;
+//        return;
 
         $i = 2;
         $categoryUrl = $this->dataCategory[$i]['url'];
