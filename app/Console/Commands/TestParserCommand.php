@@ -3,9 +3,11 @@
 
 namespace App\Console\Commands;
 
+use App\Entity\ParseCategory;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, NotLoadedException, StrictException};
 use Illuminate\Console\Command;
+
 
 /**
  * Class TestCommand
@@ -70,6 +72,14 @@ class TestParserCommand extends Command
      */
     public function handle()
     {
+        $test = ParseCategory::first();
+        var_dump($test->source_id);
+        var_dump($test->source->id);
+        var_dump($test->category_id);
+        var_dump($test->category->id);
+//        var_dump(get_class($test->source));
+        return;
+
         $i = 2;
         $categoryUrl = $this->dataCategory[$i]['url'];
         $linkSelector = $this->dataCategory[$i]['linkSelector'];
@@ -91,6 +101,7 @@ class TestParserCommand extends Command
         {
             /** @var \PHPHtmlParser\Dom\HtmlNode $content */
             $href = $content->getAttribute('href');
+            /** @see https://medium.com/@tomgrohl/using-laravel-validation-in-console-commands-65199a0473d0 */
             $this->info($content->text(true));
             $this->info($href);
         }

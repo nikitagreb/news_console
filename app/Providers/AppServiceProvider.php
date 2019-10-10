@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\{Facades\Validator, ServiceProvider};
+use Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -13,6 +15,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        if ($this->app->environment() === 'local') {
+            app('config')->set('app.aliases', [
+                'Validator' => Validator::class,
+                'Eloquent'=> Model::class,
+            ]);
+            $this->app->register(IdeHelperServiceProvider::class);
+        }
     }
 }
