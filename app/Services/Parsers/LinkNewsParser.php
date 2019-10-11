@@ -1,8 +1,6 @@
 <?php
 
-
 namespace App\Services\Parsers;
-
 
 use Illuminate\Database\Eloquent\Collection;
 use PHPHtmlParser\Dom;
@@ -63,7 +61,8 @@ class LinkNewsParser
     {
         /** @var HtmlNode $node */
         $linkNews = new ParseLinkNews();
-        $linkNews->link = $node->getAttribute('href');
+        $nodeLinkData = parse_url($node->getAttribute('href'));
+        $linkNews->link = $nodeLinkData['path'];
         $linkNews->title = $node->text(true);
         $linkNews->source_id = $category->source_id;
         $linkNews->category_id = $category->category_id;
@@ -76,10 +75,12 @@ class LinkNewsParser
      */
     private function validate($node, $link): bool
     {
-        $nodeLink = $node->getAttribute('href');
-        if ($nodeLink === $link) {
+        $linkData = parse_url($link);
+        $nodeLinkData = parse_url($node->getAttribute('href'));
+        if ($nodeLinkData['path'] === $linkData['path']) {
             return false;
         }
+
         /** @var HtmlNode $node */
         $validator = Validator::make(
             [
