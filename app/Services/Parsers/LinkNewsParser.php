@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\HtmlNode;
 use Illuminate\Support\Facades\Validator;
-use App\Console\Commands\TestParserCommand;
+use App\Console\Commands\ParserLinkNewsCommand;
 use App\Models\{ParseCategory, ParseLinkNews};
 
 class LinkNewsParser
@@ -17,7 +17,7 @@ class LinkNewsParser
 
     private $parseCategories;
 
-    public function __construct(TestParserCommand $command)
+    public function __construct(ParserLinkNewsCommand $command)
     {
         $this->command = $command;
     }

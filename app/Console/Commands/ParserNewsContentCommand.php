@@ -12,14 +12,14 @@ use Illuminate\Console\Command;
  * Class TestCommand
  * @package App\Console\Commands
  */
-class TestParserCommand extends Command
+class ParserNewsContentCommand extends Command
 {
     /**
      * The console command name.
      *
      * @var string
      */
-    protected $signature = "testParser:test";
+    protected $signature = "parser:newsContent";
 
     /**
      * The console command description.
@@ -27,6 +27,8 @@ class TestParserCommand extends Command
      * @var string
      */
     protected $description = "Test parser";
+
+
 
     protected $dataCategory = [
         [
