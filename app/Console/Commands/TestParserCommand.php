@@ -3,10 +3,9 @@
 
 namespace App\Console\Commands;
 
-use PHPHtmlParser\Dom;
+use App\Services\Parsers\LinkNewsParser;
 use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, NotLoadedException, StrictException};
 use Illuminate\Console\Command;
-use App\Entity\ParseCategory;
 
 
 /**
@@ -59,53 +58,16 @@ class TestParserCommand extends Command
     /**
      * Execute the console command.
      *
-     * @return mixed
-     */
-
-    /**
-     * Execute the console command.
-     *
      * @throws ChildNotFoundException
      * @throws CircularException
      * @throws NotLoadedException
      * @throws StrictException
+     * @throws \PHPHtmlParser\Exceptions\CurlException
      */
     public function handle()
     {
-//        $test = ParseCategory::first();
-//        var_dump($test->source_id);
-//        var_dump($test->source->id);
-//        var_dump($test->category_id);
-//        var_dump($test->category->id);
-//        var_dump(get_class($test->source));
-//        return;
+        $service = new LinkNewsParser($this);
+        $service->run();
 
-        $i = 2;
-        $categoryUrl = $this->dataCategory[$i]['url'];
-        $linkSelector = $this->dataCategory[$i]['linkSelector'];
-        $linkSelector = str_replace('{date}', (new \DateTime())->format('Y/m/d'), $linkSelector);
-
-        $fileName = implode(DIRECTORY_SEPARATOR, [
-            __DIR__,
-            'data',
-            'parser',
-            str_replace([ '.', '/', 'html', ':'], '_', $categoryUrl),
-        ]);
-
-        $dom = new Dom();
-        $dom->loadFromFile($fileName);
-
-        $contents = $dom->find($linkSelector);
-
-        foreach ($contents as $content)
-        {
-            /** @var \PHPHtmlParser\Dom\HtmlNode $content */
-            $href = $content->getAttribute('href');
-            /** @see https://medium.com/@tomgrohl/using-laravel-validation-in-console-commands-65199a0473d0 */
-            $this->info($content->text(true));
-            $this->info($href);
-        }
-
-        $this->info('Counts - ' . count($contents));
     }
 }
