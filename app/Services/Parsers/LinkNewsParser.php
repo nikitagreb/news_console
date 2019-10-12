@@ -8,6 +8,7 @@ use PHPHtmlParser\Dom\HtmlNode;
 use Illuminate\Support\Facades\Validator;
 use App\Console\Commands\TestParserCommand;
 use App\Models\{ParseCategory, ParseLinkNews};
+use Throwable;
 
 class LinkNewsParser
 {
@@ -59,14 +60,18 @@ class LinkNewsParser
 
     private function savePlaceLinkNews($node, ParseCategory $category): void
     {
-        /** @var HtmlNode $node */
-        $linkNews = new ParseLinkNews();
-        $nodeLinkData = parse_url($node->getAttribute('href'));
-        $linkNews->link = $nodeLinkData['path'];
-        $linkNews->title = $node->text(true);
-        $linkNews->source_id = $category->source_id;
-        $linkNews->category_id = $category->category_id;
-        $linkNews->save();
+        try {
+            /** @var HtmlNode $node */
+            $linkNews = new ParseLinkNews();
+            $nodeLinkData = parse_url($node->getAttribute('href'));
+            $linkNews->link = $nodeLinkData['path'];
+            $linkNews->title = $node->text(true);
+            $linkNews->source_id = $category->source_id;
+            $linkNews->category_id = $category->category_id;
+            $linkNews->save();
+        } catch (Throwable $e) {
+            $this->command->error($e->getMessage());
+        }
     }
 
     /**
