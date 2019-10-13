@@ -43,6 +43,6 @@ class ParseLinkNews extends Model
 
     public function category()
     {
-        return $this->belongsTo(ParseSource::class);
+        return $this->belongsTo(Category::class);
     }
 }
