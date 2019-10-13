@@ -4,9 +4,12 @@
 namespace App\Console\Commands;
 
 use App\Services\Parsers\LinkNewsParser;
-use PHPHtmlParser\Exceptions\{ChildNotFoundException, CircularException, NotLoadedException, StrictException};
+use PHPHtmlParser\Exceptions\{ChildNotFoundException,
+    CircularException,
+    CurlException,
+    NotLoadedException,
+    StrictException};
 use Illuminate\Console\Command;
-
 
 /**
  * Class TestCommand
@@ -35,7 +38,7 @@ class ParserLinkNewsCommand extends Command
      * @throws CircularException
      * @throws NotLoadedException
      * @throws StrictException
-     * @throws \PHPHtmlParser\Exceptions\CurlException
+     * @throws CurlException
      */
     public function handle()
     {
