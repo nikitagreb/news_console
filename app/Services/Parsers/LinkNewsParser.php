@@ -64,6 +64,12 @@ class LinkNewsParser
             /** @var HtmlNode $node */
             $linkNews = new ParseLinkNews();
             $nodeLinkData = parse_url($node->getAttribute('href'));
+            if (isset($nodeLinkData['query'])) {
+                parse_str($nodeLinkData['query'], $nodeLinkDataQuery);
+                if (isset($nodeLinkDataQuery['id'])) {
+                    $nodeLinkData['path'] = $nodeLinkData['path'] . '?id=' . $nodeLinkDataQuery['id'];
+                }
+            }
             $linkNews->link = $nodeLinkData['path'];
             $linkNews->title = $node->text(true);
             $linkNews->source_id = $category->source_id;
