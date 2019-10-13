@@ -2,13 +2,18 @@
 
 namespace App\Services\Parsers;
 
-use Illuminate\Database\Eloquent\Collection;
+use Throwable;
+use PHPHtmlParser\Exceptions\{ChildNotFoundException,
+    CircularException,
+    CurlException,
+    NotLoadedException,
+    StrictException};
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\HtmlNode;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use App\Console\Commands\ParserLinkNewsCommand;
 use App\Models\{ParseCategory, ParseLinkNews};
-use Throwable;
 
 class LinkNewsParser
 {
@@ -24,11 +29,11 @@ class LinkNewsParser
     }
 
     /**
-     * @throws \PHPHtmlParser\Exceptions\ChildNotFoundException
-     * @throws \PHPHtmlParser\Exceptions\CircularException
-     * @throws \PHPHtmlParser\Exceptions\CurlException
-     * @throws \PHPHtmlParser\Exceptions\NotLoadedException
-     * @throws \PHPHtmlParser\Exceptions\StrictException
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws CurlException
+     * @throws NotLoadedException
+     * @throws StrictException
      */
     public function run()
     {

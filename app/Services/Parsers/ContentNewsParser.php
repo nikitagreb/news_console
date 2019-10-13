@@ -4,76 +4,109 @@ namespace App\Services\Parsers;
 
 use PHPHtmlParser\Dom;
 use PHPHtmlParser\Dom\HtmlNode;
+use PHPHtmlParser\Exceptions\{ChildNotFoundException,
+    CircularException,
+    NotLoadedException,
+    UnknownChildTypeException,
+    StrictException};
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Validator;
 use App\Console\Commands\ParserNewsContentCommand;
+use App\Models\{News, ParseCategory, ParseLinkNews};
 
+/**
+ * Class ContentNewsParser
+ * @package App\Services\Parsers
+ */
 class ContentNewsParser
 {
+    private const COUNT_PARSE = 2;
+
     private $command;
 
+    private $parseLinkNews;
+
+    /**
+     * ContentNewsParser constructor.
+     * @param ParserNewsContentCommand $command
+     */
     public function __construct(ParserNewsContentCommand $command)
     {
         $this->command = $command;
     }
 
     public function run()
-
     {
         $dom = new Dom();
 
-        $index = 0;
-        $data = [
-            // NYTimes
-            [
-                'link' => 'https://www.nytimes.com/2019/10/10/business/road-trips.html',
-                'titleSelector' => 'head meta[name="og:title"], head meta[property="og:title"]',
-                'descriptionSelector' => 'head meta[name="og:description"], head meta[property="og:description"]',
-                'imageSelector' => 'head meta[name="og:image"], head meta[property="og:image"]',
-                'contentSelector' => '*[itemprop="articleBody"]',
-                'contentFilterSelector' => 'p[class^="css"], h2[class^="css"]',
-            ],
-            // ABCNews
-            [
-                'link' => 'https://abcnews.go.com/Business/amazon-takes-public-stand-minimum-wage-climate-change/story?id=66208132&cid=clicksource_74_null_headlines_hed',
-                'titleSelector' => 'head meta[name="og:title"], head meta[property="og:title"]',
-                'descriptionSelector' => 'head meta[name="og:description"], head meta[property="og:description"]',
-                'imageSelector' => 'head meta[name="og:image"], head meta[property="og:image"]',
-                'contentSelector' => '.article-body',
-                'contentFilterSelector' => 'p[itemprop="articleBody"]',
-            ],
-            // CNN
-            [
-                'link' => 'https://edition.cnn.com/2019/10/11/tech/apple-tim-cook-letter-hkmap-live/index.html',
-                'titleSelector' => 'head meta[name="og:title"], head meta[property="og:title"]',
-                'descriptionSelector' => 'head meta[name="og:description"], head meta[property="og:description"]',
-                'imageSelector' => 'head meta[name="og:image"], head meta[property="og:image"]',
-                'contentSelector' => '*[itemprop="articleBody"]',
-                'contentFilterSelector' => '.zn-body__paragraph',
-            ],
-            // BBS
-            [
-                'link' => 'https://www.bbc.com/news/technology-50018512',
-                'titleSelector' => 'head meta[name="og:title"], head meta[property="og:title"]',
-                'descriptionSelector' => 'head meta[name="og:description"], head meta[property="og:description"]',
-                'imageSelector' => 'head meta[name="og:image"], head meta[property="og:image"]',
-                'contentSelector' => '*[property="articleBody"]',
-                'contentFilterSelector' => 'p',
-            ],
-        ];
+        $news = $this->getParseLinkNews();
 
-        $dom->load($data[$index]['link']);
-        $this->command->info('Start');
+        foreach ($news as $newsItem) {
 
-        $this->getOGContent($dom, $data[$index]['titleSelector']);
-        $this->getOGContent($dom, $data[$index]['descriptionSelector']);
-        $this->getOGContent($dom, $data[$index]['imageSelector']);
+            /** @var $newsItem ParseLinkNews */
+            $dom->load($newsItem->getAbsoluteLink());
 
-        // contentSelector
-        $this->command->info('Start content');
-        $this->getNewsContent($dom, $data[$index]['contentSelector'], $data[$index]['contentFilterSelector']);
-        $this->command->info('End');
+            $attributes = [];
+            $attributes['title'] = $this->getOGContent($dom, $newsItem->source->parseNews->title_selector);
+            $attributes['description'] = $this->getOGContent($dom, $newsItem->source->parseNews->description_selector);
+            $attributes['image'] = $this->getOGContent($dom, $newsItem->source->parseNews->image_selector);
+            $attributes['category_id'] = $newsItem->category_id;
+            $attributes['source_id'] = $newsItem->source_id;
+            $attributes['link'] = $newsItem->link;
+            $attributes['text'] = $this->getNewsContent($dom, $newsItem->source->parseNews->content_selector, $newsItem->source->parseNews->content_filter_selector);
+
+            if ($this->validate($attributes)) {
+                $news = new News();
+                $news->fill($attributes);
+                if ($news->save()) {
+                    $newsItem->setStatusLoaded();
+                    $newsItem->save();
+                };
+            }
+        }
     }
 
-    private function getNewsContent(Dom $dom, $contentSelector, $filterSelector)
+    /**
+     * @param array $attributes
+     * @return bool
+     */
+    private function validate(array $attributes): bool
+    {
+        $validator = Validator::make($attributes,
+            [
+                'title' => ['required'],
+                'description' => ['required'],
+                'image' => ['required'],
+                'category_id' => ['required'],
+                'source_id' => ['required'],
+                'link' => ['required'],
+                'text' => ['required'],
+            ]
+        );
+
+        if ($validator->fails()) {
+            foreach ($validator->errors()->all() as $error) {
+                $this->command->error($error);
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param Dom $dom
+     * @param $contentSelector
+     * @param $filterSelector
+     * @return string|null
+     * @throws ChildNotFoundException
+     * @throws CircularException
+     * @throws NotLoadedException
+     * @throws StrictException
+     * @throws UnknownChildTypeException
+     */
+    private function getNewsContent(Dom $dom, $contentSelector, $filterSelector): ?string
     {
         $contents = $dom->find($contentSelector);
 
@@ -89,7 +122,6 @@ class ContentNewsParser
             foreach ($contentsContent as $item) {
 
                 /** @var $item HtmlNode */
-                $this->command->info($item->tag->name());
                 $newsContentData[$item->id()] = [
                     'tag' => $item->tag->name(),
                     'content' => trim(strip_tags($item->innerHtml())),
@@ -98,7 +130,7 @@ class ContentNewsParser
 
             ksort($newsContentData);
 
-            $result = "<div>";
+            $result = "";
 
             foreach ($newsContentData as $id => $item) {
                 $tag = $item['tag'];
@@ -106,14 +138,20 @@ class ContentNewsParser
                 $result .= "<$tag>$content</$tag>";
             }
 
-            $result .= "</div>";
-
-            $this->command->info($result);
-
+            return $result;
         }
+
+        return null;
     }
 
-    private function getOGContent(Dom $dom, string  $selector)
+    /**
+     * @param Dom $dom
+     * @param string $selector
+     * @return string|null
+     * @throws ChildNotFoundException
+     * @throws NotLoadedException
+     */
+    private function getOGContent(Dom $dom, string  $selector): ?string
     {
         $contents = $dom->find($selector);
 
@@ -122,14 +160,31 @@ class ContentNewsParser
             $node = $contents[0];
 
             if ($node->hasAttribute('name')) {
-                $this->command->info($node->getAttribute('content'));
+                return $node->getAttribute('content');
             } elseif ($node->hasAttribute('property')) {
-                $this->command->info($node->getAttribute('content'));
+                return $node->getAttribute('content');
             } else {
                 $this->command->error('Not find attribute name or property.');
             }
         } else {
             $this->command->error('Not find element by selector - ' . $selector);
         }
+
+        return null;
+    }
+
+    /**
+     * @return Collection
+     */
+    private function getParseLinkNews(): Collection
+    {
+        if ($this->parseLinkNews === null) {
+            $this->parseLinkNews = ParseLinkNews::with('source.parseNews')
+                ->where('status', ParseCategory::STATUS_NEW)
+                ->take(self::COUNT_PARSE)
+                ->get();
+        }
+
+        return $this->parseLinkNews;
     }
 }

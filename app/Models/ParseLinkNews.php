@@ -33,6 +33,9 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ParseLinkNews extends Model
 {
+    public const STATUS_NEW = 'new';
+    public const STATUS_LOADED = 'loaded';
+
     /** @var string */
     protected $table = 'parse_link_news';
 
@@ -44,5 +47,15 @@ class ParseLinkNews extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function getAbsoluteLink(): string
+    {
+        return $this->source->site . '/' . $this->link;
+    }
+
+    public function setStatusLoaded(): void
+    {
+        $this->status = self::STATUS_LOADED;
     }
 }

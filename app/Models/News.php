@@ -42,6 +42,9 @@ class News extends Model
     /** @var string */
     protected $table = 'news';
 
+    /** @var array  */
+    protected $fillable = ['title', 'description', 'image', 'text', 'source_id', 'category_id', 'link'];
+
     public function source()
     {
         return $this->belongsTo(ParseSource::class);

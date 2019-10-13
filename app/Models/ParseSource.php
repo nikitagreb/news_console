@@ -26,6 +26,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $parse_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParseLinkNews[] $parseLinkNews
  * @property-read int|null $parse_link_news_count
+ * @property-read \App\Models\ParseNews $parseNews
  */
 class ParseSource extends Model
 {
@@ -40,5 +41,10 @@ class ParseSource extends Model
     public function parseLinkNews()
     {
         return $this->hasMany(ParseLinkNews::class);
+    }
+
+    public function parseNews()
+    {
+        return $this->hasOne(ParseNews::class, 'source_id');
     }
 }
