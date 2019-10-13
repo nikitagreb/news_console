@@ -4,8 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTableParseLinkNews extends Migration
+class CreateNewsTable extends Migration
 {
+    /** @var string */
+    private const TABLE_NAME = 'news';
+
     /**
      * Run the migrations.
      *
@@ -13,17 +16,22 @@ class CreateTableParseLinkNews extends Migration
      */
     public function up()
     {
-        Schema::create('parse_link_news', function (Blueprint $table) {
+        Schema::create(static::TABLE_NAME, function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
             $table->charset = 'utf8';
             $table->collation = 'utf8_unicode_ci';
+
             $table->bigIncrements('id');
             $table->unsignedInteger('category_id')->comment('Категория');
             $table->unsignedInteger('source_id')->comment('Источник');
-            $table->text('title')->comment('Заголовок');
-            $table->string('link', 700)->unique()->comment('Ссылка');
-            $table->enum('status', ['new', 'loaded'])->default('new')->comment('Статус');
+
+            $table->string('link', 1000)->comment('Ссылка на новость');
+            $table->string('title', 1000)->comment('Заголовок');
+            $table->string('description', 1000)->comment('Описание');
+            $table->string('image', 1000)->comment('Изображение');
+            $table->text('text')->comment('Текст новости');
+            $table->enum('status', ['published', 'unpublished'])->default('published')->comment('Статус');
             $table->timestamps();
 
             $table->foreign('category_id')
@@ -42,6 +50,6 @@ class CreateTableParseLinkNews extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('parse_link_news');
+        Schema::dropIfExists(static::TABLE_NAME);
     }
 }
