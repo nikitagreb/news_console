@@ -21,7 +21,7 @@ class CreateTableParseLinkNews extends Migration
             $table->unsignedInteger('category_id')->comment('Категория');
             $table->unsignedInteger('source_id')->comment('Источник');
             $table->text('title')->comment('Заголовок');
-            $table->string('link', 600)->unique()->comment('Ссылка');
+            $table->string('link', 500)->unique()->comment('Ссылка');
             $table->enum('status', ['new', 'loaded'])->default('new')->comment('Статус');
             $table->timestamps();
 
