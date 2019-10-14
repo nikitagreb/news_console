@@ -14,5 +14,6 @@ class DatabaseSeeder extends Seeder
          $this->call('ParseSourceTableSeeder');
          $this->call('CategoryTableSeeder');
          $this->call('ParseCategoryTableSeeder');
+         $this->call('ParseNewsTableSeeder');
     }
 }
