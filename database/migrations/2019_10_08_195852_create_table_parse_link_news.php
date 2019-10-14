@@ -12,7 +12,7 @@ class CreateTableParseLinkNews extends Migration
      */
     public function up()
     {
-        Schema::defaultStringLength(500);
+        Schema::defaultStringLength(255);
         Schema::create('parse_link_news', function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
@@ -22,7 +22,7 @@ class CreateTableParseLinkNews extends Migration
             $table->unsignedInteger('category_id')->comment('Категория');
             $table->unsignedInteger('source_id')->comment('Источник');
             $table->text('title')->comment('Заголовок');
-            $table->string('link', 500)->unique()->comment('Ссылка');
+            $table->string('link', 255)->unique()->comment('Ссылка');
             $table->enum('status', ['new', 'loaded'])->default('new')->comment('Статус');
             $table->timestamps();
 
