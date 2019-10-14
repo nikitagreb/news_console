@@ -12,6 +12,7 @@ class CreateTableParseLinkNews extends Migration
      */
     public function up()
     {
+        Schema::defaultStringLength(500);
         Schema::create('parse_link_news', function (Blueprint $table) {
 
             $table->engine = 'InnoDB';
