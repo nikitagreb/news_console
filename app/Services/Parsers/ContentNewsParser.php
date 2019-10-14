@@ -20,7 +20,7 @@ use App\Models\{News, ParseCategory, ParseLinkNews};
  */
 class ContentNewsParser
 {
-    private const COUNT_PARSE = 2;
+    private const COUNT_PARSE = 5;
 
     private $command;
 
@@ -43,6 +43,7 @@ class ContentNewsParser
 
         foreach ($news as $newsItem) {
 
+            sleep(rand(3,30));
             /** @var $newsItem ParseLinkNews */
             $dom->load($newsItem->getAbsoluteLink());
 

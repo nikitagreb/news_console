@@ -17,7 +17,7 @@ use App\Models\{ParseCategory, ParseLinkNews};
 
 class LinkNewsParser
 {
-    private const COUNT_PARSE = 2;
+    private const COUNT_PARSE = 5;
 
     private $command;
 
@@ -40,6 +40,7 @@ class LinkNewsParser
         if ($this->getParseCategories()->count()) {
             $dom = new Dom();
             foreach ($this->getParseCategories() as $category) {
+                sleep(rand(3,30));
                 $dom->load($category->link);
                 $linkSelector = str_replace(
                     '{date}',
