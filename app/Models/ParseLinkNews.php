@@ -30,11 +30,14 @@ use Illuminate\Database\Eloquent\Model;
  * @mixin \Eloquent
  * @property-read \App\Models\ParseSource $category
  * @property-read \App\Models\ParseSource $source
+ * @property string $error Ошибка парсинга
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\ParseLinkNews whereError($value)
  */
 class ParseLinkNews extends Model
 {
     public const STATUS_NEW = 'new';
     public const STATUS_LOADED = 'loaded';
+    public const STATUS_ERROR = 'error';
 
     /** @var string */
     protected $table = 'parse_link_news';
@@ -51,11 +54,19 @@ class ParseLinkNews extends Model
 
     public function getAbsoluteLink(): string
     {
-        return $this->source->site . '/' . $this->link;
+        return $this->source->site . $this->link;
     }
 
-    public function setStatusLoaded(): void
+    public function saveStatusLoaded(): void
     {
         $this->status = self::STATUS_LOADED;
+        $this->save();
+    }
+
+    public function saveStatusError(string $message): void
+    {
+        $this->error = $message;
+        $this->status = self::STATUS_ERROR;
+        $this->save();
     }
 }

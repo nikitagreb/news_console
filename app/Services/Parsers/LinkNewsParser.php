@@ -80,6 +80,7 @@ class LinkNewsParser
             $linkNews->title = $node->text(true);
             $linkNews->source_id = $category->source_id;
             $linkNews->category_id = $category->category_id;
+            $linkNews->error = '';
             $linkNews->save();
         } catch (Throwable $e) {
             $this->command->error($e->getMessage());
