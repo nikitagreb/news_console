@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Validator;
 use App\Console\Commands\ParserNewsContentCommand;
 use App\Models\{News, ParseCategory, ParseLinkNews};
+use Throwable;
 
 /**
  * Class ContentNewsParser
@@ -20,11 +21,13 @@ use App\Models\{News, ParseCategory, ParseLinkNews};
  */
 class ContentNewsParser
 {
-    private const COUNT_PARSE = 5;
+    private const COUNT_PARSE = 1;
 
     private $command;
 
     private $parseLinkNews;
+
+    private $validateErrors;
 
     /**
      * ContentNewsParser constructor.
@@ -44,25 +47,32 @@ class ContentNewsParser
         foreach ($news as $newsItem) {
 
             sleep(rand(3,30));
-            /** @var $newsItem ParseLinkNews */
-            $dom->load($newsItem->getAbsoluteLink());
 
-            $attributes = [];
-            $attributes['title'] = $this->getOGContent($dom, $newsItem->source->parseNews->title_selector);
-            $attributes['description'] = $this->getOGContent($dom, $newsItem->source->parseNews->description_selector);
-            $attributes['image'] = $this->getOGContent($dom, $newsItem->source->parseNews->image_selector);
-            $attributes['category_id'] = $newsItem->category_id;
-            $attributes['source_id'] = $newsItem->source_id;
-            $attributes['link'] = $newsItem->link;
-            $attributes['text'] = $this->getNewsContent($dom, $newsItem->source->parseNews->content_selector, $newsItem->source->parseNews->content_filter_selector);
+            try {
+                /** @var $newsItem ParseLinkNews */
+                $dom->load($newsItem->getAbsoluteLink());
 
-            if ($this->validate($attributes)) {
-                $news = new News();
-                $news->fill($attributes);
-                if ($news->save()) {
-                    $newsItem->setStatusLoaded();
-                    $newsItem->save();
-                };
+                $attributes = [];
+                $attributes['title'] = $this->getOGContent($dom, $newsItem->source->parseNews->title_selector);
+                $attributes['description'] = $this->getOGContent($dom, $newsItem->source->parseNews->description_selector);
+                $attributes['image'] = $this->getOGContent($dom, $newsItem->source->parseNews->image_selector);
+                $attributes['category_id'] = $newsItem->category_id;
+                $attributes['source_id'] = $newsItem->source_id;
+                $attributes['link'] = $newsItem->link;
+                $attributes['text'] = $this->getNewsContent($dom, $newsItem->source->parseNews->content_selector, $newsItem->source->parseNews->content_filter_selector);
+
+                if ($this->validate($attributes)) {
+                    $news = new News();
+                    $news->fill($attributes);
+                    if ($news->save()) {
+                        $newsItem->saveStatusLoaded();
+                    };
+                } else {
+                    $newsItem->saveStatusError($this->validateErrors);
+                }
+            } catch (Throwable $e) {
+                $this->command->error($e->getMessage());
+                $newsItem->saveStatusError($e->getMessage());
             }
         }
     }
@@ -86,6 +96,7 @@ class ContentNewsParser
         );
 
         if ($validator->fails()) {
+            $this->validateErrors = implode(', ', $validator->errors()->all());
             foreach ($validator->errors()->all() as $error) {
                 $this->command->error($error);
             }
@@ -117,11 +128,12 @@ class ContentNewsParser
 
             $domContent = new Dom;
             $domContent->loadStr($node->innerHtml());
-            // contentFilterSelector
-            $contentsContent = $domContent->find($filterSelector);
-            $newsContentData = [];
-            foreach ($contentsContent as $item) {
 
+            // тут бывают ошибки в самой библиотеке
+            $contentsContent = @$domContent->find($filterSelector);
+            $newsContentData = [];
+
+            foreach ($contentsContent as $item) {
                 /** @var $item HtmlNode */
                 $newsContentData[$item->id()] = [
                     'tag' => $item->tag->name(),
