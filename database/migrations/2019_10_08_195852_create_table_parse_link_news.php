@@ -23,7 +23,7 @@ class CreateTableParseLinkNews extends Migration
             $table->unsignedInteger('source_id')->comment('Источник');
             $table->text('title')->comment('Заголовок');
             $table->string('link', 255)->unique()->comment('Ссылка');
-            $table->string('error', 255)->default(null)->comment('Ошибка парсинга');
+            $table->text('error')->charset('utf8mb4')->collation('utf8mb4_unicode_ci')->default(null)->comment('Ошибка парсинга');
             $table->enum('status', ['new', 'loaded', 'error'])->default('new')->comment('Статус');
             $table->timestamps();
 
