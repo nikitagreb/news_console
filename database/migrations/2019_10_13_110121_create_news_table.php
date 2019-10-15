@@ -29,7 +29,7 @@ class CreateNewsTable extends Migration
             $table->string('title', 1000)->comment('Заголовок');
             $table->string('description', 1000)->comment('Описание');
             $table->string('image', 1000)->comment('Изображение');
-            $table->text('text')->comment('Текст новости');
+            $table->text('text')->charset('utf8mb4')->collation('utf8mb4_unicode_ci')->comment('Текст новости');
             $table->enum('status', ['published', 'unpublished'])->default('published')->comment('Статус');
             $table->timestamps();
 
