@@ -4,10 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddColumnByCategory extends Migration
+class AddColumnSlugInTableNews extends Migration
 {
     /** @var string */
-    private const TABLE = 'category';
+    private const TABLE = 'news';
 
     /**
      * Run the migrations.
@@ -17,8 +17,7 @@ class AddColumnByCategory extends Migration
     public function up()
     {
         Schema::table(static::TABLE, function (Blueprint $table) {
-            $table->string('title', 100)->comment('Заголовок страницы');
-            $table->string('description', 250)->comment('Описание страницы');
+            $table->string('slug', 100)->comment('Псевдоним для ссылки');
         });
     }
 
@@ -30,7 +29,7 @@ class AddColumnByCategory extends Migration
     public function down()
     {
         Schema::table(static::TABLE, function (Blueprint $table) {
-            $table->dropColumn(['title', 'description']);
+            $table->dropColumn('slug');
         });
     }
 }
