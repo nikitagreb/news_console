@@ -67,8 +67,7 @@ class LinkNewsParser
     private function savePlaceLinkNews($node, ParseCategory $category): void
     {
         try {
-            /** @var HtmlNode $node */
-            $linkNews = new ParseLinkNews();
+
             $nodeLinkData = parse_url($node->getAttribute('href'));
             if (isset($nodeLinkData['query'])) {
                 parse_str($nodeLinkData['query'], $nodeLinkDataQuery);
@@ -76,12 +75,22 @@ class LinkNewsParser
                     $nodeLinkData['path'] = $nodeLinkData['path'] . '?id=' . $nodeLinkDataQuery['id'];
                 }
             }
+
+            /** @var \Illuminate\Database\Eloquent\Collection $collection */
+            $collection = ParseLinkNews::where('link', '=', $nodeLinkData['path'])->get();
+            if ($collection->count()) {
+                return;
+            }
+
+            /** @var HtmlNode $node */
+            $linkNews = new ParseLinkNews();
             $linkNews->link = $nodeLinkData['path'];
             $linkNews->title = $node->text(true);
             $linkNews->source_id = $category->source_id;
             $linkNews->category_id = $category->category_id;
             $linkNews->error = '';
             $linkNews->save();
+
         } catch (Throwable $e) {
             $this->command->error($e->getMessage());
         }

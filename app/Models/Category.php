@@ -24,6 +24,12 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read int|null $parse_categories_count
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\ParseLinkNews[] $parseLinkNews
  * @property-read int|null $parse_link_news_count
+ * @property string $title Заголовок страницы
+ * @property string $description Описание страницы
+ * @property string $slug Псевдоним для ссылки
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Category whereDescription($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Category whereSlug($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Category whereTitle($value)
  */
 class Category extends Model
 {

@@ -36,6 +36,8 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereTitle($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereUpdatedAt($value)
  * @mixin \Eloquent
+ * @property string $slug Псевдоним для ссылки
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\News whereSlug($value)
  */
 class News extends Model
 {
@@ -43,7 +45,7 @@ class News extends Model
     protected $table = 'news';
 
     /** @var array  */
-    protected $fillable = ['title', 'description', 'image', 'text', 'source_id', 'category_id', 'link'];
+    protected $fillable = ['title', 'description', 'image', 'text', 'source_id', 'category_id', 'link', 'slug'];
 
     public function source()
     {
