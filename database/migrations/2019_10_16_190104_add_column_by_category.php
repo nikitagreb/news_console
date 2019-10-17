@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\Schema;
 class AddColumnByCategory extends Migration
 {
     /** @var string */
-    private const CONNECTION = 'mysqlConsole';
-
-    /** @var string */
     private const TABLE = 'category';
 
     /**
@@ -19,7 +16,7 @@ class AddColumnByCategory extends Migration
      */
     public function up()
     {
-        Schema::connection(static::CONNECTION)->table(static::TABLE, function (Blueprint $table) {
+        Schema::table(static::TABLE, function (Blueprint $table) {
             $table->string('title', 100)->comment('Заголовок страницы');
             $table->string('description', 250)->comment('Описание страницы');
         });
