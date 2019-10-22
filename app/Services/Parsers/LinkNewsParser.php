@@ -69,22 +69,28 @@ class LinkNewsParser
         try {
 
             $nodeLinkData = parse_url($node->getAttribute('href'));
+
+            $path = $nodeLinkData['path'];
+            if (substr($path, strlen($path)-1) == "/") {
+                $path = substr($path,0,strlen($path)-1);
+            }
+
             if (isset($nodeLinkData['query'])) {
                 parse_str($nodeLinkData['query'], $nodeLinkDataQuery);
                 if (isset($nodeLinkDataQuery['id'])) {
-                    $nodeLinkData['path'] = $nodeLinkData['path'] . '?id=' . $nodeLinkDataQuery['id'];
+                    $path .= '?id=' . $nodeLinkDataQuery['id'];
                 }
             }
 
             /** @var \Illuminate\Database\Eloquent\Collection $collection */
-            $collection = ParseLinkNews::where('link', '=', $nodeLinkData['path'])->get();
+            $collection = ParseLinkNews::where('link', '=', $path)->get();
             if ($collection->count()) {
                 return;
             }
 
             /** @var HtmlNode $node */
             $linkNews = new ParseLinkNews();
-            $linkNews->link = $nodeLinkData['path'];
+            $linkNews->link = $path;
             $linkNews->title = $node->text(true);
             $linkNews->source_id = $category->source_id;
             $linkNews->category_id = $category->category_id;
