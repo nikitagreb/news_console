@@ -41,27 +41,39 @@ class LinkNewsParser
             $dom = new Dom();
             foreach ($this->getParseCategories() as $category) {
                 sleep(rand(3,30));
-                $dom->load($category->link);
-                $linkSelector = str_replace(
-                    '{date}',
-                    (new \DateTime())->format('Y/m/d'),
-                    $category->linkSelector
-                );
-                $contents = $dom->find($linkSelector);
-                foreach ($contents as $content)
-                {
-                    /** @var HtmlNode $content */
-                    if ($this->validate($content, $category->link)) {
-                        $this->savePlaceLinkNews($content, $category);
+
+                try {
+                    $dom->load($category->link);
+                } catch (Throwable $e) {
+                    $this->command->error($e->getMessage());
+                    $this->saveStatusCategory($category);
+
+                    $linkSelector = str_replace(
+                        '{date}',
+                        (new \DateTime())->format('Y/m/d'),
+                        $category->linkSelector
+                    );
+                    $contents = $dom->find($linkSelector);
+                    foreach ($contents as $content)
+                    {
+                        /** @var HtmlNode $content */
+                        if ($this->validate($content, $category->link)) {
+                            $this->savePlaceLinkNews($content, $category);
+                        }
                     }
+                    $this->saveStatusCategory($category);
                 }
-                $category->setStatusLoaded();
-                $category->save();
             }
         } else {
             ParseCategory::query()->update(['status' => ParseCategory::STATUS_NEW]);
             $this->command->info('Updates status by new.');
         }
+    }
+
+    private function saveStatusCategory(ParseCategory $category): void
+    {
+        $category->setStatusLoaded();
+        $category->save();
     }
 
     private function savePlaceLinkNews($node, ParseCategory $category): void
