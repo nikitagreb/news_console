@@ -44,10 +44,6 @@ class LinkNewsParser
 
                 try {
                     $dom->load($category->link);
-                } catch (Throwable $e) {
-                    $this->command->error($e->getMessage());
-                    $this->saveStatusCategory($category);
-
                     $linkSelector = str_replace(
                         '{date}',
                         (new \DateTime())->format('Y/m/d'),
@@ -61,6 +57,9 @@ class LinkNewsParser
                             $this->savePlaceLinkNews($content, $category);
                         }
                     }
+                    $this->saveStatusCategory($category);
+                } catch (Throwable $e) {
+                    $this->command->error($e->getMessage());
                     $this->saveStatusCategory($category);
                 }
             }
